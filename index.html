@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediBook — Hospital Appointment Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Cabinet+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav>
+  <div class="logo" onclick="goHome()">
+    <div class="logo-cross">✚</div>
+    MediBook
+  </div>
+  <ul>
+    <li><a onclick="goHome()">Home</a></li>
+    <li><a onclick="showPage('hospitals')">Find Hospitals</a></li>
+    <li><a onclick="showPage('about')">About</a></li>
+    <li><a onclick="showPage('contact')">Contact</a></li>
+  </ul>
+  <div class="nav-btns">
+    <button class="btn-outline" onclick="showPage('auth')">Login</button>
+    <button class="btn-primary" onclick="showPage('auth')">Register</button>
+  </div>
+</nav>
+
+<!-- ═══════════ HOME ═══════════ -->
+<div id="home" class="page active">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-pill">Trusted by 2 Million+ Patients</div>
+      <h1>Book Your <span>Hospital</span><br>Appointment,<br>Skip the Queue.</h1>
+      <p class="hero-sub">Find top doctors, choose your time slot, pay securely online — and receive your token number instantly. Healthcare simplified.</p>
+
+      <div class="hero-search">
+        <input type="text" id="cityInput" placeholder="Search hospital or specialty in your city…" autocomplete="off" oninput="showSugg(this.value)" onkeydown="if(event.key==='Enter')searchCity()">
+        <button onclick="searchCity()">Search</button>
+      </div>
+      <ul class="suggestions" id="suggBox" style="position:absolute;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;z-index:50;min-width:340px;display:none;box-shadow:var(--shadow-md);"></ul>
+
+      <div class="hero-stats">
+        <div class="hstat"><strong>500+</strong><span>Hospitals</span></div>
+        <div class="hstat"><strong>8,000+</strong><span>Doctors</span></div>
+        <div class="hstat"><strong>2M+</strong><span>Appointments</span></div>
+        <div class="hstat"><strong>50+</strong><span>Cities</span></div>
+      </div>
+
+      <div class="dept-pills" style="margin-top:24px;">
+        <div class="dept-pill" onclick="filterDept('Cardiology')">❤️ Cardiology</div>
+        <div class="dept-pill" onclick="filterDept('Orthopedics')">🦴 Orthopedics</div>
+        <div class="dept-pill" onclick="filterDept('Neurology')">🧠 Neurology</div>
+        <div class="dept-pill" onclick="filterDept('Pediatrics')">👶 Pediatrics</div>
+        <div class="dept-pill" onclick="filterDept('Oncology')">🎗️ Oncology</div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-card-main">
+        <div class="hcm-top">
+          <div class="hcm-avatar">👨‍⚕️</div>
+          <div class="hcm-info">
+            <div class="name">Dr. Rajesh Menon</div>
+            <div class="spec">Senior Cardiologist</div>
+          </div>
+          <div class="hcm-badge">Available</div>
+        </div>
+        <div style="font-size:.74rem;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Today's Slots</div>
+        <div class="slot-list">
+          <div class="slot taken">09:00</div>
+          <div class="slot taken">09:30</div>
+          <div class="slot">10:00</div>
+          <div class="slot">10:30</div>
+          <div class="slot taken">11:00</div>
+          <div class="slot">11:30</div>
+          <div class="slot">14:00</div>
+          <div class="slot">14:30</div>
+        </div>
+        <button class="btn-primary" style="width:100%;padding:11px;" onclick="showPage('hospitals')">Book Appointment →</button>
+      </div>
+      <div class="hero-floating">
+        <div class="float-icon">🎫</div>
+        <div>
+          <div class="float-label">Token issued</div>
+          <div class="float-num">T‑0847</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HOSPITALS LIST ═══════════ -->
+<div id="hospitals" class="page">
+  <div class="section">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="sec-title" id="hospTitle">Find Hospitals</div>
+        <div class="sec-sub" id="hospSub">Browse trusted hospitals across India</div>
+      </div>
+    </div>
+    <input type="text" class="search-inp" id="hospQ" placeholder="Search by hospital name, city or specialty…" oninput="renderHospitals()">
+    <div class="filters" id="filtersRow">
+      <button class="flt on" onclick="setFilter('all',this)">All</button>
+      <button class="flt" onclick="setFilter('Govt',this)">Government</button>
+      <button class="flt" onclick="setFilter('Private',this)">Private</button>
+      <button class="flt" onclick="setFilter('Multi',this)">Multi-specialty</button>
+      <button class="flt" onclick="setFilter('top',this)">⭐ Top Rated</button>
+    </div>
+    <div class="hosp-grid" id="hospGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════════ HOSPITAL DETAIL ═══════════ -->
+<div id="detail" class="page">
+  <button class="back-btn" onclick="showPage('hospitals')">← Back to Hospitals</button>
+  <div class="detail-banner" id="detailBanner"><span style="position:relative;z-index:1;font-size:5rem;">🏥</span></div>
+  <div class="detail-body">
+    <div class="detail-hdr">
+      <div>
+        <div class="detail-name" id="detailName">Hospital Name</div>
+        <div class="detail-meta" id="detailMeta"></div>
+      </div>
+      <div class="rating-box">
+        <div class="rn" id="detailRating">4.5</div>
+        <div class="rl">Rating</div>
+      </div>
+    </div>
+
+    <div class="gallery" id="detailGallery"></div>
+    <p id="detailDesc" style="color:var(--ink3);line-height:1.8;margin-bottom:24px;font-size:.93rem;"></p>
+
+    <div class="info-grid">
+      <div class="ibox"><h3>Facilities</h3><div class="fac-wrap" id="detailFac"></div></div>
+      <div class="ibox"><h3>Contact & Location</h3><div id="detailContact" style="font-size:.85rem;color:var(--ink3);line-height:2.1;"></div></div>
+      <div class="ibox"><h3>Departments</h3><div id="detailDepts" class="dept-tags" style="margin-top:8px;"></div></div>
+      <div class="ibox"><h3>Insurance Accepted</h3><div id="detailInsurance" class="fac-wrap" style="margin-top:8px;"></div></div>
+    </div>
+
+    <div class="ibox" style="margin-bottom:14px;">
+      <h3>Available Doctors</h3>
+      <div class="doc-grid" id="detailDoctors" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="ibox" style="margin-bottom:14px;">
+      <h3>Patient Reviews</h3>
+      <div id="detailReviews" style="margin-top:11px;"></div>
+    </div>
+
+    <button class="btn-book-big" onclick="openBooking()">🗓️ Book Appointment</button>
+  </div>
+</div>
+
+<!-- ═══════════ BOOKING WIZARD ═══════════ -->
+<div id="booking" class="page">
+  <button class="back-btn" onclick="showPage('detail')">← Back</button>
+  <div class="booking-wrap">
+    <!-- Progress -->
+    <div class="prog">
+      <div class="ps on" id="ps1"><div class="pd">1</div><div class="pl">Doctor</div></div>
+      <div class="ps" id="ps2"><div class="pd">2</div><div class="pl">Date & Time</div></div>
+      <div class="ps" id="ps3"><div class="pd">3</div><div class="pl">Patient</div></div>
+      <div class="ps" id="ps4"><div class="pd">4</div><div class="pl">Payment</div></div>
+    </div>
+
+    <!-- Booking header -->
+    <div class="bk-hdr">
+      <div style="font-size:1.8rem;">🏥</div>
+      <div>
+        <div style="font-size:.72rem;color:var(--ink3);margin-bottom:2px;">Appointment at</div>
+        <div class="bk-hosp-name" id="bkHospName">Hospital Name</div>
+        <div class="bk-doc" id="bkDocName">Select a doctor →</div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Select Doctor -->
+    <div id="step1">
+      <div class="step-lbl">Step 1 — Choose Doctor & Department</div>
+      <div class="doc-grid" id="bookDocGrid"></div>
+      <button class="btn-primary" style="padding:11px 30px;margin-top:4px;" onclick="nextStep(2)">Next →</button>
+    </div>
+
+    <!-- STEP 2: Date & Time -->
+    <div id="step2" style="display:none;">
+      <div class="step-lbl">Step 2 — Select Date</div>
+      <div class="date-grid" id="dateGrid"></div>
+      <div class="step-lbl" style="margin-top:18px;">Select Time Slot</div>
+      <div class="time-grid" id="timeGrid"></div>
+      <div style="display:flex;gap:9px;margin-top:8px;">
+        <button class="btn-outline" onclick="prevStep(1)" style="padding:10px 22px;">← Back</button>
+        <button class="btn-primary" style="padding:10px 30px;" onclick="nextStep(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Patient Details -->
+    <div id="step3" style="display:none;">
+      <div class="step-lbl">Step 3 — Patient Details</div>
+      <div class="frow">
+        <div class="fg"><label>Patient Full Name *</label><input type="text" id="pName" placeholder="Rahul Sharma"></div>
+        <div class="fg"><label>Age *</label><input type="number" id="pAge" placeholder="35" min="0" max="120"></div>
+      </div>
+      <div class="fg">
+        <label>Gender *</label>
+        <select id="pGender">
+          <option value="">Select gender</option>
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Phone Number *</label><input type="tel" id="pPhone" placeholder="+91 98765 43210"></div>
+        <div class="fg"><label>Email Address</label><input type="email" id="pEmail" placeholder="rahul@email.com"></div>
+      </div>
+      <div class="fg"><label>Blood Group</label>
+        <select id="pBlood">
+          <option value="">Select blood group</option>
+          <option>A+</option><option>A−</option><option>B+</option><option>B−</option>
+          <option>AB+</option><option>AB−</option><option>O+</option><option>O−</option>
+        </select>
+      </div>
+      <div class="fg"><label>Symptoms / Reason for Visit</label><textarea id="pSymptoms" rows="3" placeholder="Briefly describe your symptoms or reason for visit…"></textarea></div>
+      <div class="fg"><label>Insurance Policy Number (Optional)</label><input type="text" id="pInsurance" placeholder="e.g. HDFC-HEAL-123456"></div>
+      <div style="display:flex;gap:9px;margin-top:8px;">
+        <button class="btn-outline" onclick="prevStep(2)" style="padding:10px 22px;">← Back</button>
+        <button class="btn-primary" style="padding:10px 30px;" onclick="nextStep(4)">Next: Payment →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Payment -->
+    <div id="step4" style="display:none;">
+      <div class="step-lbl">Step 4 — Review & Payment</div>
+
+      <!-- Summary -->
+      <div class="pay-summary">
+        <div class="pay-row"><span class="lbl">Hospital</span><span class="val" id="sum-hosp">—</span></div>
+        <div class="pay-row"><span class="lbl">Doctor</span><span class="val" id="sum-doc">—</span></div>
+        <div class="pay-row"><span class="lbl">Date & Time</span><span class="val" id="sum-dt">—</span></div>
+        <div class="pay-row"><span class="lbl">Patient</span><span class="val" id="sum-patient">—</span></div>
+        <div class="divider" style="margin:4px 0;"></div>
+        <div class="pay-row"><span class="lbl">Consultation Fee</span><span class="val" id="sum-fee">—</span></div>
+        <div class="pay-row"><span class="lbl">Registration Fee</span><span class="val">₹ 50</span></div>
+        <div class="pay-row"><span class="lbl">GST (18%)</span><span class="val" id="sum-gst">—</span></div>
+        <div class="pay-row total"><span class="lbl">Total Amount</span><span class="val" id="sum-total">—</span></div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div class="step-lbl">Select Payment Method</div>
+      <div class="pay-methods">
+        <div class="pay-method sel" id="pm-card" onclick="selPayMethod('card',this)">
+          <div class="pm-icon">💳</div>
+          <div class="pm-name">Card</div>
+        </div>
+        <div class="pay-method" id="pm-upi" onclick="selPayMethod('upi',this)">
+          <div class="pm-icon">📱</div>
+          <div class="pm-name">UPI</div>
+        </div>
+        <div class="pay-method" id="pm-net" onclick="selPayMethod('net',this)">
+          <div class="pm-icon">🏦</div>
+          <div class="pm-name">Net Banking</div>
+        </div>
+      </div>
+
+      <!-- Card fields -->
+      <div class="card-fields show" id="cardFields">
+        <div class="fg" style="margin-bottom:10px;"><label style="font-size:.76rem;color:var(--ink3);font-weight:600;margin-bottom:4px;display:block;">Card Number</label>
+          <input class="card-input" type="text" placeholder="1234  5678  9012  3456" maxlength="19" oninput="formatCard(this)">
+        </div>
+        <div class="card-row">
+          <div><label style="font-size:.76rem;color:var(--ink3);font-weight:600;margin-bottom:4px;display:block;">Expiry</label>
+            <input class="card-input" style="margin-bottom:0;" type="text" placeholder="MM / YY" maxlength="7">
+          </div>
+          <div><label style="font-size:.76rem;color:var(--ink3);font-weight:600;margin-bottom:4px;display:block;">CVV</label>
+            <input class="card-input" style="margin-bottom:0;" type="password" placeholder="•••" maxlength="3">
+          </div>
+        </div>
+        <div style="margin-top:10px;"><label style="font-size:.76rem;color:var(--ink3);font-weight:600;margin-bottom:4px;display:block;">Name on Card</label>
+          <input class="card-input" style="margin-bottom:0;" type="text" placeholder="RAHUL SHARMA">
+        </div>
+      </div>
+
+      <!-- UPI field -->
+      <div class="upi-field" id="upiField">
+        <div class="fg" style="margin-bottom:0;"><label>UPI ID</label>
+          <input type="text" placeholder="rahul@paytm  or  9876543210@upi">
+        </div>
+      </div>
+
+      <!-- Net Banking -->
+      <div class="upi-field" id="netField" style="display:none;">
+        <div class="fg" style="margin-bottom:0;"><label>Select Bank</label>
+          <select><option>Select your bank</option><option>State Bank of India</option><option>HDFC Bank</option><option>ICICI Bank</option><option>Axis Bank</option><option>Kotak Mahindra</option><option>Punjab National Bank</option></select>
+        </div>
+      </div>
+
+      <!-- Processing animation -->
+      <div class="pay-processing" id="payProcessing">
+        <div class="spin"></div>
+        <p id="payMsg">Processing your payment…</p>
+      </div>
+
+      <div id="payBtnWrap" style="display:flex;gap:9px;margin-top:16px;">
+        <button class="btn-outline" onclick="prevStep(3)" style="padding:10px 22px;">← Back</button>
+        <button class="btn-primary" style="padding:10px;flex:1;" onclick="processPayment()" id="payBtn">🔒 Pay &amp; Get Token</button>
+      </div>
+    </div>
+
+    <!-- TOKEN (success) -->
+    <div class="token-page" id="tokenPage">
+      <div class="token-card">
+        <div class="token-header">
+          <div class="check-circle">✓</div>
+          <h2>Appointment Confirmed!</h2>
+          <p>Payment received. Your token is ready.</p>
+        </div>
+        <div class="token-body">
+          <div class="token-number-wrap">
+            <div class="token-lbl">Your Token Number</div>
+            <div class="token-number" id="tokenNum">T-000</div>
+            <div class="token-dept" id="tokenDept">Cardiology</div>
+          </div>
+
+          <div class="appt-details" id="tokenDetails"></div>
+
+          <div class="paid-badge">
+            ✓ Payment Successful — <span id="tokenAmount">₹ 0</span>
+          </div>
+
+          <div class="token-note">
+            Please arrive 15 minutes before your appointment time. Show this token at the reception desk. Carry a valid ID proof.
+          </div>
+
+          <button class="btn-download" onclick="printToken()">⬇ Download / Print Token</button>
+          <button class="btn-home" onclick="showPage('hospitals')">Book Another Appointment</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /booking-wrap -->
+</div><!-- /booking -->
+
+<!-- ═══════════ AUTH ═══════════ -->
+<div id="auth" class="page" style="padding-top:66px;">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 66px);">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="atab on" onclick="switchAuth('login',this)">Login</button>
+        <button class="atab" onclick="switchAuth('register',this)">Register</button>
+      </div>
+      <div id="loginForm">
+        <div class="auth-title">Welcome back</div>
+        <div class="auth-sub">Sign in to manage your appointments</div>
+        <div class="step-lbl" style="margin-bottom:6px;">Login as</div>
+        <div class="role-row" style="margin-bottom:16px;">
+          <button class="role-btn sel" onclick="selRole(this,'patient')">🧑‍🤝‍🧑 Patient</button>
+          <button class="role-btn" onclick="selRole(this,'admin')">🛡️ Admin</button>
+        </div>
+        <div class="fg"><label>Email Address</label><input type="email" id="lEmail" placeholder="you@email.com"></div>
+        <div class="fg"><label>Password</label><input type="password" id="lPwd" placeholder="••••••••"></div>
+        <button class="btn-primary" style="width:100%;padding:12px;font-size:.92rem;margin-top:6px;" onclick="handleLogin()">Sign In</button>
+        <p style="text-align:center;margin-top:13px;font-size:.79rem;color:var(--ink3);">No account? <a href="#" onclick="switchAuth('register')" style="color:var(--teal);font-weight:700;">Register</a></p>
+      </div>
+      <div id="registerForm" style="display:none;">
+        <div class="auth-title">Create account</div>
+        <div class="auth-sub">Join 2 million patients on MediBook</div>
+        <div class="frow"><div class="fg"><label>First Name</label><input type="text" placeholder="Rahul"></div><div class="fg"><label>Last Name</label><input type="text" placeholder="Sharma"></div></div>
+        <div class="fg"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+        <div class="fg"><label>Phone</label><input type="tel" placeholder="+91 98765 43210"></div>
+        <div class="fg"><label>Password</label><input type="password" placeholder="Create a strong password"></div>
+        <button class="btn-primary" style="width:100%;padding:12px;font-size:.92rem;margin-top:6px;" onclick="handleRegister()">Create Account</button>
+        <p style="text-align:center;margin-top:13px;font-size:.79rem;color:var(--ink3);">Already registered? <a href="#" onclick="switchAuth('login')" style="color:var(--teal);font-weight:700;">Login</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADMIN ═══════════ -->
+<div id="admin" class="page">
+  <div class="admin-layout">
+    <aside class="admin-side">
+      <div class="logo-sm">✚ Admin Panel</div>
+      <ul class="amenu">
+        <li><a class="on" onclick="aTab('overview',this)">📊 Overview</a></li>
+        <li><a onclick="aTab('appointments',this)">📋 Appointments</a></li>
+        <li><a onclick="aTab('hospitals',this)">🏥 Hospitals</a></li>
+        <li><a onclick="aTab('addhospital',this)">➕ Add Hospital</a></li>
+        <li><a onclick="aTab('patients',this)">👤 Patients</a></li>
+        <li><a onclick="aTab('tokens',this)">🎫 Tokens</a></li>
+      </ul>
+    </aside>
+    <main class="admin-main" id="adminMain"></main>
+  </div>
+</div>
+
+<!-- ═══════════ ABOUT ═══════════ -->
+<div id="about" class="page">
+  <div class="about-in">
+    <div class="about-ht">Simplifying <em>Healthcare</em><br>Access Across India</div>
+    <div class="about-txt">
+      <p>MediBook is India's most trusted hospital appointment platform. We connect patients with top doctors across 500+ hospitals in 50+ cities. Book appointments, get instant tokens, and skip the wait.</p>
+      <br><p>Founded in 2021, MediBook has facilitated over 2 million appointments with a 98% satisfaction rate. We support all major hospital types — government, private, and multi-specialty.</p>
+    </div>
+    <div class="af-grid">
+      <div class="af"><div class="afi">🗓️</div><div class="aft">Easy Booking</div><div class="afd">Book in under 3 minutes with our guided wizard.</div></div>
+      <div class="af"><div class="afi">🎫</div><div class="aft">Instant Token</div><div class="afd">Get your token number immediately after payment.</div></div>
+      <div class="af"><div class="afi">💳</div><div class="aft">Secure Payment</div><div class="afd">Pay via card, UPI or net banking — fully encrypted.</div></div>
+      <div class="af"><div class="afi">⭐</div><div class="aft">Verified Doctors</div><div class="afd">All doctors are verified and credentialed.</div></div>
+      <div class="af"><div class="afi">📱</div><div class="aft">SMS Reminders</div><div class="afd">Get reminders before your appointment.</div></div>
+      <div class="af"><div class="afi">🏥</div><div class="aft">500+ Hospitals</div><div class="afd">Across 50 cities and growing every week.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CONTACT ═══════════ -->
+<div id="contact" class="page">
+  <div class="contact-in">
+    <div class="sec-title">Get in Touch</div>
+    <div class="sec-sub" style="margin-bottom:26px;">We're here to help 24/7</div>
+    <div class="fg"><label>Your Name</label><input type="text" placeholder="Rahul Sharma"></div>
+    <div class="fg"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+    <div class="fg"><label>Subject</label><input type="text" placeholder="Appointment query"></div>
+    <div class="fg"><label>Message</label><textarea rows="5" placeholder="How can we help?"></textarea></div>
+    <button class="btn-primary" style="padding:11px 28px;" onclick="showToast('✅ Message sent! We\'ll reply within 2 hours.')">Send Message</button>
+  </div>
+</div>
+
+<footer>
+  <div class="logo">✚ MediBook</div>
+  <p>© 2025 MediBook. All rights reserved.</p>
+  <p>Trusted healthcare booking across India 🇮🇳</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- Scripts: data first, then app logic -->
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
